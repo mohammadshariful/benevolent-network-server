@@ -32,10 +32,26 @@ async function run() {
 
     //get operation
     app.get("/services", async (req, res) => {
-      const query = req.query;
+      const query = {};
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
       const cursor = servicesCollection.find(query);
-      const services = await cursor.toArray();
+      let services;
+      if (page || size) {
+        services = await cursor
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+      } else {
+        services = await cursor.toArray();
+      }
+
       res.send(services);
+    });
+    //get service count
+    app.get("/servicesCount", async (req, res) => {
+      const count = await servicesCollection.countDocuments();
+      res.send({ count });
     });
 
     //post operation
