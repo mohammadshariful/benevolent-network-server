@@ -26,6 +26,9 @@ async function run() {
       .db("benevolentNetwork")
       .collection("services");
     const usersCollection = client.db("benevolentNetwork").collection("users");
+    const eventsCollection = client
+      .db("benevolentNetwork")
+      .collection("events");
 
     //get operation
     app.get("/services", async (req, res) => {
@@ -53,6 +56,24 @@ async function run() {
       const id = req.params;
       const query = { _id: ObjectId(id) };
       const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    });
+    //events collection
+    app.get("/events", async (req, res) => {
+      const query = req.query;
+      const cursor = eventsCollection.find(query);
+      const events = await cursor.toArray();
+      res.send(events);
+    });
+    app.post("/event", async (req, res) => {
+      const user = req.body;
+      const result = await eventsCollection.insertOne(user);
+      res.send(result);
+    });
+    app.delete("/event/:id", async (req, res) => {
+      const id = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await eventsCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
